@@ -1,0 +1,16 @@
+name: 'nyc_taxi_dbt'
+version: '1.0.0'
+config-version: 2
+
+# To mówi dbt, jakiego profilu połączenia ma używać
+profile: 'nyc_taxi_profile'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+
+models:
+  nyc_taxi_dbt:
+    gold:
+      materialized: table

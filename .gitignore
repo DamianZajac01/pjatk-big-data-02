@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+
+data/bronze/*.csv
+data/silver/
+*.duckdb
+
+logs/
+target/
+dbt_modules/
+dbt_packages/
+
+.user.yml
+.idea/
+.vscode/

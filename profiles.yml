@@ -1,0 +1,7 @@
+nyc_taxi_profile:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: 'data/taxi_db.duckdb' # Tu dbt stworzy bazę z Twoimi raportami
+      threads: 4

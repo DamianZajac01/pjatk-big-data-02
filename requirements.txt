@@ -1,0 +1,6 @@
+pyspark
+dagster
+dagster-webserver
+dagster-dbt
+dbt-duckdb
+duckdb
