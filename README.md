@@ -71,24 +71,28 @@ To handle real-time data ingestion, the pipeline now features:
 ### Setup and Execution
 
 **1. Infrastructure Setup**
+
 Start the message broker using Docker:
 ```bash
 docker-compose up -d
 ```
 
 **2. Dependency Installation**
+
 Install the required packages using pip:
 ```bash
 pip install -r requirements.txt
 ```
 
 **3. Pipeline Execution**
+
 Launch the Dagster development server:
 ```bash
 dagster dev -f pipeline.py
 ```
 
 **4. Choose Ingestion Mode**
+
 In the Dagster UI (Launchpad), paste the corresponding YAML configuration for your use case:
 
 **Option A: Batch Mode**
@@ -119,6 +123,7 @@ ops:
 ```
 
 **5. Data Transformation**
+
 Execute dbt models to build the final tables:
 ```bash
 dbt run --profiles-dir .
