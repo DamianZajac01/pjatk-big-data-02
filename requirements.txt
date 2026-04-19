@@ -4,3 +4,4 @@ dagster-webserver
 dagster-dbt
 dbt-duckdb
 duckdb
+kafka-python
