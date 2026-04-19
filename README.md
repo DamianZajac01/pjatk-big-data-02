@@ -70,7 +70,7 @@ To handle real-time data ingestion, the pipeline now features:
 
 ### Setup and Execution
 
-** 1. Infrastructure Setup**
+**1. Infrastructure Setup**
 Start the message broker using Docker:
 ```bash
 docker-compose up -d
@@ -91,7 +91,7 @@ dagster dev -f pipeline.py
 **4. Choose Ingestion Mode**
 In the Dagster UI (Launchpad), paste the corresponding YAML configuration for your use case:
 
-Option A: Batch Mode
+**Option A: Batch Mode**
 ```YAML
 ops:
   kafka_streaming_ingest:
@@ -103,6 +103,7 @@ ops:
 Option B: Streaming Mode (Kafka + Fresh Data)
 ```
 
+**Option B: Streaming Mode (Kafka + Fresh Data)**
 ```YAML
 ops:
   kafka_streaming_ingest:
