@@ -1,0 +1,131 @@
+dataContractSpecification: "3.1.0"
+
+# ──────────────────────────────────────────────
+# 1. PRODUCT IDENTITY
+# ──────────────────────────────────────────────
+id: "nyc-taxi-tipping-insights"
+name: "NYC Taxi Tipping Analytics – Medallion Warehouse"
+version: "1.0.0"
+status: "active"
+
+info:
+  title: "NYC Taxi Tipping Analytics"
+  version: "1.0.0"
+  description: |
+    This data product provides high-quality, aggregated insights into NYC taxi tipping trends. 
+    It enables borough-level performance analysis and monthly trend forecasting by 
+    calculating average tip values from millions of raw trip records.
+  owner: "Damian Zając"
+  contact:
+    name: "Damian Zając"
+    url: "https://github.com/DamianZajac01/pjatk-big-data-02"
+  tags:
+    - medallion-architecture
+    - analytics-ready
+    - duckdb-optimization
+    - dbt-transformed
+
+# ──────────────────────────────────────────────
+# 2. DATA LINEAGE & PIPELINE
+# ──────────────────────────────────────────────
+lineage:
+  description: "Transformation flow from raw TLC ingestion to analytical marts."
+  flow:
+    - "Source: NYC TLC Yellow Taxi Trip Records (CSV)"
+    - "Ingestion: Dagster-managed automated pipeline into Bronze layer"
+    - "Processing: dbt-based cleaning, type-casting and filtering in Silver layer"
+    - "Output: Aggregated business-ready Gold tables for BI consumption"
+
+pipeline:
+  orchestrator: "Dagster"
+  transformation_engine: "dbt"
+  refresh_policy: "On-demand batch processing"
+
+# ──────────────────────────────────────────────
+# 3. DETAILED SCHEMA (GOLD LAYER)
+# ──────────────────────────────────────────────
+schema:
+  type: "table"
+  dialect: "DuckDB"
+  datasets:
+    - name: "gold_tips"
+      layer: "gold"
+      description: "Primary analytical mart containing monthly tipping metrics by borough."
+      columns:
+        - name: Borough
+          dataType: TEXT
+          isPrimaryKey: true
+          isNullable: false
+          description: "Official NYC Borough name (e.g., Manhattan, Brooklyn, Queens)."
+        - name: data_month
+          dataType: TEXT
+          isPrimaryKey: true
+          isNullable: false
+          description: "Reporting period in YYYY-MM format."
+        - name: avg_tip
+          dataType: DOUBLE
+          isNullable: false
+          unit: "USD"
+          description: "Arithmetic mean of tip_amount for all valid trips in the group."
+        - name: total_trips
+          dataType: BIGINT
+          isNullable: false
+          description: "Count of individual trips processed to calculate the average."
+
+# ──────────────────────────────────────────────
+# 4. QUALITY METRICS
+# ──────────────────────────────────────────────
+quality:
+  framework: "dbt-test suite + Python validation scripts"
+  updateCadence: "After each pipeline materialization"
+  metrics:
+    - id: "Q1"
+      name: "Tipping Value Validity"
+      category: "Validity"
+      definition: "Ratio of records where avg_tip is non-negative."
+      currentValue: "100%"
+      expectedThreshold: "100%"
+    - id: "Q2"
+      name: "Borough Mapping Completeness"
+      category: "Completeness"
+      definition: "Percentage of rows with a valid borough name successfully joined from lookup tables."
+      currentValue: "100%"
+      expectedThreshold: "100%"
+    - id: "Q3"
+      name: "Reporting Mart Consistency"
+      category: "Row Count"
+      definition: "Total number of aggregated rows in the Gold layer."
+      currentValue: "24"
+      expectedThreshold: ">= 5" # At least one for each major borough
+
+# ──────────────────────────────────────────────
+# 5. EXAMPLE USAGE
+# ──────────────────────────────────────────────
+examples:
+  - title: "Top 5 boroughs with highest average tips"
+    language: "sql"
+    code: |
+      SELECT Borough, avg_tip 
+      FROM gold_tips 
+      WHERE total_trips > 100
+      ORDER BY avg_tip DESC 
+      LIMIT 5;
+
+  - title: "Load tipping trends into Pandas"
+    language: "python"
+    code: |
+      import duckdb
+      conn = duckdb.connect('data/taxi_db.duckdb')
+      df = conn.execute("SELECT * FROM gold_tips").df()
+      print(df.sort_values('avg_tip', ascending=False))
+
+# ──────────────────────────────────────────────
+# 6. KNOWN LIMITATIONS
+# ──────────────────────────────────────────────
+limitations:
+  - id: "L1"
+    description: "Filtered Data: Trips with fare_amount <= 0 or trip_distance <= 0 are excluded during Silver transformation."
+  - id: "L2"
+    description: "Scope: This product currently only covers Yellow Taxi data; Green and FHV types are not included."
+  - id: "L3"
+    description: "Storage: Silver layer is materialized as a view to optimize DuckDB file size for local development."
