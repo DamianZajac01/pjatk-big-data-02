@@ -39,7 +39,8 @@ lineage:
 pipeline:
   orchestrator: "Dagster"
   transformation_engine: "dbt"
-  refresh_policy: "On-demand batch processing"
+  refresh_policy: "Hybrid: Manual Batch and Near-Real-Time Streaming" # ZMIANA TU
+  notes: "The pipeline supports dual-mode ingestion: batch processing for historical files and Kafka-based streaming for real-time trip events."
 
 # ──────────────────────────────────────────────
 # 3. DETAILED SCHEMA (GOLD LAYER)
@@ -77,7 +78,7 @@ schema:
 # ──────────────────────────────────────────────
 quality:
   framework: "dbt-test suite + Python validation scripts"
-  updateCadence: "After each pipeline materialization"
+  updateCadence: "Triggered after batch completion or continuously during streaming sessions"
   metrics:
     - id: "Q1"
       name: "Tipping Value Validity"
